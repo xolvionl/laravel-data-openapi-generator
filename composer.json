@@ -1,0 +1,45 @@
+{
+    "name": "xolvio/laravel-data-openapi-generator",
+    "description": "Generate OpenAPI specification from Laravel routes and Laravel Data objects.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Xolvio\\OpenApiGenerator\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Xolvio\\OpenApiGenerator\\OpenApiServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Robert Groot",
+            "email": "r.groot@xolvio.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "format": [
+            "@php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --verbose --config=./php-cs.php --path-mode=intersection . --ansi"
+        ],
+        "larastan": [
+            "vendor/bin/phpstan analyse"
+        ]
+    },
+    "require": {
+        "spatie/laravel-data": "^1",
+        "laravel/framework": "^8|^9",
+        "phpdocumentor/reflection-docblock": "^5.3",
+        "spatie/invade": "^1.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.8",
+        "nunomaduro/larastan": "^2.1",
+        "orchestra/testbench": "^7.5"
+    }
+}

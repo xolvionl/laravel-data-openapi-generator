@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  php:
+    container_name: laravel-data-openapi-generator
+    image: xolvionl/laravel:minimal
+    user: "${UID:-1000}"
+    command: php-fpm -F
+    hostname: laravel-data-openapi-generator
+    extra_hosts:
+        - "laravel-data-openapi-generator.localhost:host-gateway"
+    depends_on:
+      - mysql
+    environment:
+      TZ: ${TZ}
+      COMPOSER_HOME: ~/.composer
+      COMPOSER_CACHE_DIR: ~/.composer/cache
+    restart: unless-stopped
+    working_dir: /var/www/
+    networks: 
+      - traefik_default
+    volumes:
+      - type: bind
+        source: ./
+        target: /var/www
+      - type: bind
+        source: /etc/passwd
+        target: /etc/passwd
+        read_only: true
+      - type: bind
+        source: /etc/group
+        target: /etc/group
+        read_only: true
+
+networks:
+  traefik_default:
+    external: true
