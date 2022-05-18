@@ -26,6 +26,13 @@ In `composer.json` add:
 
 `composer require xolvio/laravel-data-openapi-generator:dev-main`
 
+If there is a GitLab Runner involved, make sure to add this to the job that runs `composer i`:
+
+```yml
+  before_script:
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+```
+
 # Optional
 
 ## Version
