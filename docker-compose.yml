@@ -8,8 +8,6 @@ services:
     hostname: laravel-data-openapi-generator
     extra_hosts:
         - "laravel-data-openapi-generator.localhost:host-gateway"
-    depends_on:
-      - mysql
     environment:
       TZ: ${TZ}
       COMPOSER_HOME: ~/.composer

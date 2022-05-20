@@ -5,7 +5,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Xolvio\\OpenApiGenerator\\": "src/"
+            "Xolvio\\OpenApiGenerator\\": "src/",
+            "Xolvio\\OpenApiGenerator\\Test\\": "tests/Dummy/"
         }
     },
     "extra": {
@@ -29,6 +30,9 @@
         ],
         "larastan": [
             "vendor/bin/phpstan analyse"
+        ],
+        "test": [
+            "vendor/bin/pest"
         ]
     },
     "require": {
@@ -40,6 +44,12 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.8",
         "nunomaduro/larastan": "^2.1",
-        "orchestra/testbench": "^7.5"
+        "orchestra/testbench": "^7.5",
+        "pestphp/pest": "^1.21"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }

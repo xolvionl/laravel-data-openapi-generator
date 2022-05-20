@@ -28,6 +28,13 @@ class OpenApi extends Data
         static::$schemas[$name] = $schema;
     }
 
+    /** @return array<string,class-string<Data>> */
+    public static function getSchemas(): array
+    {
+        return static::$schemas;
+    }
+
+
     /**
      * @param array<string,array<string,Route>> $routes
      */

@@ -15,8 +15,8 @@ class Info extends Data
     public static function create(): self
     {
         return new self(
-            title: config('app.name'),
-            version: config('app.version', '1.0.0'),
+            title: config('openapi-generator.name'),
+            version: config('openapi-generator.version', '1.0.0'),
         );
     }
 }

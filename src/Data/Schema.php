@@ -149,7 +149,12 @@ class Schema extends Data
 
     protected static function fromListDocblock(ReflectionMethod|ReflectionFunction|ReflectionProperty $reflection): self
     {
-        $docblock = DocBlockFactory::createInstance()->create($reflection->getDocComment() ?: '');
+        $docs = $reflection->getDocComment();
+        if (! $docs) {
+            throw new \RuntimeException('Could not find required docblock of method/property ' . $reflection->getName());
+        }
+
+        $docblock = DocBlockFactory::createInstance()->create($docs);
 
         if ($reflection instanceof ReflectionMethod || $reflection instanceof ReflectionFunction) {
             $tag = $docblock->getTagsByName('return')[0] ?? null;
@@ -159,7 +164,7 @@ class Schema extends Data
 
         /** @var null|Return_|Var_ $tag */
         if (! $tag) {
-            throw new \RuntimeException('Could not find tag in docblock of method/property ' . $reflection->getName());
+            throw new \RuntimeException('Could not find required tag in docblock of method/property ' . $reflection->getName());
         }
 
         $tag_type = $tag->getType();
@@ -169,6 +174,10 @@ class Schema extends Data
         }
 
         $class = $tag_type->getValueType()->__toString();
+
+        if (! class_exists($class)) {
+            throw new \RuntimeException('Cannot resolve "' . $class . '". Make sure to use the full path in the phpdoc including the first "\".');
+        }
 
         return new self(
             type: 'array',
