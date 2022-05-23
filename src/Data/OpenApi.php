@@ -34,7 +34,6 @@ class OpenApi extends Data
         return static::$schemas;
     }
 
-
     /**
      * @param array<string,array<string,Route>> $routes
      */

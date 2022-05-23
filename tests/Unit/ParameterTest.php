@@ -7,7 +7,7 @@ it('can create no parameter', function () {
     foreach (['basic', 'requestBasic'] as $function) {
         $route  = new Route('get', '/', [Controller::class, $function]);
         $method = methodFromRoute($route);
-    
+
         expect(Parameter::fromRoute($route, $method)?->toArray())
             ->toBeNull();
     }

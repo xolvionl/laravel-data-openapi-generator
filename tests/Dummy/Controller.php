@@ -53,7 +53,6 @@ class Controller extends LaravelController
         return ReturnData::collection([]);
     }
 
-
     public function collectionFail(): DataCollection
     {
         return ReturnData::collection([]);
@@ -87,5 +86,10 @@ class Controller extends LaravelController
     public function allCombined(int $parameter_1, string $parameter_2, Model $parameter_3, RequestData $request): ReturnData
     {
         return ReturnData::create($parameter_1, $parameter_2, $parameter_3, $request);
+    }
+
+    public function contentType(ContentTypeData $data): ContentTypeData
+    {
+        return ContentTypeData::create($data);
     }
 }

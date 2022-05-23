@@ -30,7 +30,7 @@ class RequestBody extends Data
         );
     }
 
-    protected static function getFirstOfClassType(ReflectionMethod|ReflectionFunction $method, string $class): ?ReflectionNamedType
+    public static function getFirstOfClassType(ReflectionMethod|ReflectionFunction $method, string $class): ?ReflectionNamedType
     {
         $parameter = Arr::first(
             $method->getParameters(),

@@ -28,6 +28,7 @@ class Schema extends Data
 
     public function __construct(
         public ?string $type = null,
+        public ?bool $nullable = null,
         public ?string $format = null,
         public ?Schema $items = null,
         public ?string $ref = null,
@@ -35,25 +36,33 @@ class Schema extends Data
         protected ?DataCollection $properties = null,
     ) {
         $this->type = self::CASTS[$this->type] ?? $this->type;
+        $this->nullable = $this->nullable ? $this->nullable : null;
     }
 
-    public static function fromDataReflection(string $type_name, ReflectionMethod|ReflectionFunction|ReflectionProperty|null $reflection = null): self
+    public static function fromDataReflection(string|ReflectionNamedType $type_name, ReflectionMethod|ReflectionFunction|ReflectionProperty|null $reflection = null): self
     {
+        $nullable = false;
+
+        if ($type_name instanceof ReflectionNamedType) {
+            $nullable = $type_name->allowsNull();
+            $type_name = $type_name->getName();
+        }
+
         $is_class = class_exists($type_name);
 
         if (! $is_class && 'array' !== $type_name) {
-            return self::fromBuiltin($type_name);
+            return self::fromBuiltin($type_name, $nullable);
         }
 
         if (null !== $reflection && (is_a($type_name, DataCollection::class, true) || 'array' === $type_name)) {
-            return self::fromListDocblock($reflection);
+            return self::fromListDocblock($reflection, $nullable);
         }
 
         if (is_a($type_name, UnitEnum::class, true)) {
-            return self::fromEnum($type_name);
+            return self::fromEnum($type_name, $nullable);
         }
 
-        return self::fromData($type_name);
+        return self::fromData($type_name, $nullable);
     }
 
     public static function fromParameterReflection(ReflectionParameter $parameter): self
@@ -72,7 +81,7 @@ class Schema extends Data
             $type_name = $instance->getKeyType();
         }
 
-        return new self(type: $type_name);
+        return new self(type: $type_name, nullable: $type->allowsNull());
     }
 
     public static function fromDataClass(string $class): self
@@ -107,12 +116,12 @@ class Schema extends Data
         return $array;
     }
 
-    protected static function fromBuiltin(string $type_name): self
+    protected static function fromBuiltin(string $type_name, bool $nullable): self
     {
-        return new self(type: $type_name);
+        return new self(type: $type_name, nullable: $nullable);
     }
 
-    protected static function fromEnum(string $type): self
+    protected static function fromEnum(string $type, bool $nullable): self
     {
         $enum = (new ReflectionEnum($type));
 
@@ -122,10 +131,10 @@ class Schema extends Data
             $type_name = (string) $type;
         }
 
-        return new self(type: $type_name);
+        return new self(type: $type_name, nullable: $nullable);
     }
 
-    protected static function fromData(string $type_name): self
+    protected static function fromData(string $type_name, bool $nullable): self
     {
         $type_name = ltrim($type_name, '\\');
 
@@ -143,11 +152,12 @@ class Schema extends Data
         OpenApi::addClassSchema($scheme_name, $type_name);
 
         return new self(
-            ref: '#/components/schemas/' . $scheme_name
+            ref: '#/components/schemas/' . $scheme_name,
+            nullable: $nullable,
         );
     }
 
-    protected static function fromListDocblock(ReflectionMethod|ReflectionFunction|ReflectionProperty $reflection): self
+    protected static function fromListDocblock(ReflectionMethod|ReflectionFunction|ReflectionProperty $reflection, bool $nullable): self
     {
         $docs = $reflection->getDocComment();
         if (! $docs) {
@@ -182,6 +192,7 @@ class Schema extends Data
         return new self(
             type: 'array',
             items: self::fromDataReflection($class),
+            nullable: $nullable,
         );
     }
 }
