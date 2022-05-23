@@ -13,7 +13,7 @@ class Controller extends LaravelController
 
     public function basic(): ReturnData
     {
-        return ReturnData::create();
+        return new ReturnData();
     }
 
     /**

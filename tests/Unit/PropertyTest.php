@@ -14,21 +14,67 @@ it('cannot create property from non data class', function () {
 });
 
 it('can create properties from data class', function () {
-    foreach ([RequestData::class, ReturnData::class, ContentTypeData::class] as $class) {
+    foreach ([ReturnData::class, ContentTypeData::class] as $class) {
         $properties = Property::fromDataClass($class);
         $types      = array_map(fn (Property $item) => $item->type->toArray(), $properties->all());
 
         expect($types)
             ->toBe([
                 [
-                  "type" => "string"
-                ],
-                [
-                  "type" => "string",
-                  "nullable" => true
+                    'type' => 'string',
                 ],
             ]);
     }
+
+    $properties = Property::fromDataClass(RequestData::class);
+    $types      = array_map(fn (Property $item) => $item->type->toArray(), $properties->all());
+
+    expect($types)
+        ->toBe([
+            [
+                'type' => 'integer',
+            ],
+            [
+                'type'     => 'integer',
+                'nullable' => true,
+            ],
+            [
+                'type' => 'string',
+            ],
+            [
+                'type'     => 'string',
+                'nullable' => true,
+            ],
+            [
+                'type' => 'boolean',
+            ],
+            [
+                'type'     => 'boolean',
+                'nullable' => true,
+            ],
+            [
+                'type' => 'number',
+            ],
+            [
+                'type'     => 'number',
+                'nullable' => true,
+            ],
+            [
+                'nullable' => true,
+                'allOf'    => [
+                    ['$ref' => '#/components/schemas/RequestData'],
+                ],
+            ],
+            [
+                '$ref' => '#/components/schemas/ReturnData',
+            ],
+            [
+                'nullable' => true,
+                'allOf'    => [
+                    ['$ref' => '#/components/schemas/ReturnData'],
+                ],
+            ],
+        ]);
 });
 
 it('can create property from reflection', function () {

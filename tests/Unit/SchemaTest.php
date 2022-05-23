@@ -11,7 +11,7 @@ use Xolvio\OpenApiGenerator\Test\ReturnData;
 use Xolvio\OpenApiGenerator\Test\StringEnum;
 
 it('can create built-in schema', function () {
-    foreach (['int' => 'integer', 'string' => 'string', 'float' => 'float', 'bool' => 'boolean'] as $type => $expected) {
+    foreach (['int' => 'integer', 'string' => 'string', 'float' => 'number', 'bool' => 'boolean'] as $type => $expected) {
         expect(Schema::fromDataReflection($type)->toArray())
             ->toBe([
                 'type' => $expected,
@@ -62,6 +62,6 @@ it('can create ref data schema', function () {
 
 it('can create data schema', function () {
     $schema = Schema::fromDataClass(RequestData::class);
-    expect($schema)->toHaveProperty('type','object');
-    expect($schema->toArray()['properties'])->toHaveLength(2);
+    expect($schema)->toHaveProperty('type', 'object');
+    expect($schema->toArray()['properties'])->toHaveLength(11);
 });

@@ -22,8 +22,9 @@ use UnitEnum;
 class Schema extends Data
 {
     protected const CASTS = [
-        'int'  => 'integer',
-        'bool' => 'boolean',
+        'int'   => 'integer',
+        'bool'  => 'boolean',
+        'float' => 'number',
     ];
 
     public function __construct(
@@ -35,7 +36,7 @@ class Schema extends Data
         /** @var DataCollection<Property> */
         protected ?DataCollection $properties = null,
     ) {
-        $this->type = self::CASTS[$this->type] ?? $this->type;
+        $this->type     = self::CASTS[$this->type] ?? $this->type;
         $this->nullable = $this->nullable ? $this->nullable : null;
     }
 
@@ -44,7 +45,7 @@ class Schema extends Data
         $nullable = false;
 
         if ($type_name instanceof ReflectionNamedType) {
-            $nullable = $type_name->allowsNull();
+            $nullable  = $type_name->allowsNull();
             $type_name = $type_name->getName();
         }
 
@@ -105,6 +106,11 @@ class Schema extends Data
         if ($array['ref'] ?? false) {
             $array['$ref'] = $array['ref'];
             unset($array['ref']);
+
+            if ($array['nullable'] ?? false) {
+                $array['allOf'][] = ['$ref' => $array['$ref']];
+                unset($array['$ref']);
+            }
         }
 
         if (null !== $this->properties) {

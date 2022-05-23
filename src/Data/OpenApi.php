@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Log;
 use Spatie\LaravelData\Data;
+use stdClass;
 
 class OpenApi extends Data
 {
@@ -16,7 +17,7 @@ class OpenApi extends Data
         public string $openapi,
         public Info $info,
         /** @var array<string,array<string,Operation>> */
-        public array $paths,
+        protected array $paths,
     ) {
     }
 
@@ -66,16 +67,19 @@ class OpenApi extends Data
         // Double call to make sure all schemas are resolved
         $this->resolveSchemas();
 
+        $paths = [
+            'paths'                   => count($this->paths) > 0 ? array_map(
+                fn (array $path)      => array_map(
+            fn (Operation $operation) => $operation->toArray(),
+            $path
+        ),
+                $this->paths
+            ) : new stdClass(), ];
+
         return array_merge(
             parent::toArray(),
+            $paths,
             [
-                'paths'                           => array_map(
-                    fn (array $path)              => array_map(
-                        fn (Operation $operation) => $operation->toArray(),
-                        $path
-                    ),
-                    $this->paths
-                ),
                 'components' => [
                     'schemas'         => $this->resolveSchemas(),
                     'securitySchemes' => [
