@@ -43,12 +43,20 @@ class Schema extends Data
         $this->nullable = $this->nullable ? $this->nullable : null;
     }
 
-    public static function fromDataPropery(DataProperty $property): self
+    public static function fromReflectopnProperty(ReflectionProperty $reflection): self
     {
+        $property = DataProperty::create($reflection);
+
         $type = $property->type;
 
-        if ($type->dataClass) {
-            return self::fromData($type->dataClass, $type->isNullable || $type->isOptional);
+        /** @var null|string */
+        $data_class = $type->dataClass;
+
+        if ($type->isDataObject && $data_class) {
+            return self::fromData($data_class, $type->isNullable || $type->isOptional);
+        }
+        if ($type->isDataCollectable && $data_class) {
+            return self::fromDataCollection($data_class, $type->isNullable || $type->isOptional);
         }
 
         /** @var null|string */
@@ -58,7 +66,7 @@ class Schema extends Data
             throw new \RuntimeException("Parameter {$property->name} has no type defined");
         }
 
-        return self::fromDataReflection(type_name: $other_type, nullable: $type->isNullable);
+        return self::fromDataReflection(type_name: $other_type, reflection: $reflection, nullable: $type->isNullable);
     }
 
     public static function fromDataReflection(
@@ -183,6 +191,21 @@ class Schema extends Data
 
         return new self(
             ref: '#/components/schemas/' . $scheme_name,
+            nullable: $nullable,
+        );
+    }
+
+    protected static function fromDataCollection(string $type_name, bool $nullable): self
+    {
+        $type_name = ltrim($type_name, '\\');
+
+        if (! is_a($type_name, LaravelData::class, true)) {
+            throw new \RuntimeException("Type {$type_name} is not a Data class");
+        }
+
+        return new self(
+            type: 'array',
+            items: self::fromData($type_name, false),
             nullable: $nullable,
         );
     }

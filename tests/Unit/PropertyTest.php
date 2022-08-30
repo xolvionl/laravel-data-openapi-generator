@@ -1,6 +1,5 @@
 <?php
 
-use Spatie\LaravelData\Support\DataProperty;
 use Xolvio\OpenApiGenerator\Data\Property;
 use Xolvio\OpenApiGenerator\Test\ContentTypeData;
 use Xolvio\OpenApiGenerator\Test\NotData;
@@ -21,7 +20,7 @@ it('can create properties from data class', function () {
 
         expect($types)
             ->toBe([
-                'message' => [
+                [
                     'type' => 'string',
                 ],
             ]);
@@ -32,44 +31,44 @@ it('can create properties from data class', function () {
 
     expect($types)
         ->toBe([
-            'integer' => [
+            [
                 'type' => 'integer',
             ],
-            'nullable_integer' => [
+            [
                 'type'     => 'integer',
                 'nullable' => true,
             ],
-            'string' => [
+            [
                 'type' => 'string',
             ],
-            'nullable_string' => [
+            [
                 'type'     => 'string',
                 'nullable' => true,
             ],
-            'bool' => [
+            [
                 'type' => 'boolean',
             ],
-            'nullable_bool' => [
+            [
                 'type'     => 'boolean',
                 'nullable' => true,
             ],
-            'float' => [
+            [
                 'type' => 'number',
             ],
-            'nullable_float' => [
+            [
                 'type'     => 'number',
                 'nullable' => true,
             ],
-            'nullable_self' => [
+            [
                 'nullable' => true,
                 'allOf'    => [
                     ['$ref' => '#/components/schemas/RequestData'],
                 ],
             ],
-            'other' => [
+            [
                 '$ref' => '#/components/schemas/ReturnData',
             ],
-            'nullable_other' => [
+            [
                 'nullable' => true,
                 'allOf'    => [
                     ['$ref' => '#/components/schemas/ReturnData'],
@@ -83,7 +82,7 @@ it('can create property from reflection', function () {
         $reflection = new ReflectionClass($class);
 
         foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $reflection_property) {
-            $property = Property::fromProperty(DataProperty::create($reflection_property));
+            $property = Property::fromProperty($reflection_property);
 
             expect($property->getName())
                 ->toBe($reflection_property->getName());
