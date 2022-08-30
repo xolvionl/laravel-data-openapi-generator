@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Log;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 use stdClass;
 
 class OpenApi extends Data
@@ -62,7 +63,10 @@ class OpenApi extends Data
         );
     }
 
-    public function toArray(): array
+    /**
+     * @return array<string,mixed>
+     */
+    public function transform(bool $transformValues = true, WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled): array
     {
         // Double call to make sure all schemas are resolved
         $this->resolveSchemas();
@@ -77,7 +81,7 @@ class OpenApi extends Data
             ) : new stdClass(), ];
 
         return array_merge(
-            parent::toArray(),
+            parent::transform($transformValues, $wrapExecutionType),
             $paths,
             [
                 'components' => [
