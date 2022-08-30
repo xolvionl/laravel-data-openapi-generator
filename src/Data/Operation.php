@@ -6,6 +6,7 @@ use Closure;
 use Exception;
 use Illuminate\Routing\Route;
 use ReflectionFunction;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
@@ -13,11 +14,13 @@ use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 class Operation extends Data
 {
     public function __construct(
-        /** @var DataCollection<int,Parameter> */
+        /** @var null|DataCollection<int,Parameter> */
+        #[DataCollectionOf(Parameter::class)]
         public ?DataCollection $parameters,
         public ?RequestBody $requestBody,
         public DefaultResponse $responses,
         /** @var null|DataCollection<int,SecurityScheme> */
+        #[DataCollectionOf(SecurityScheme::class)]
         public ?DataCollection $security,
     ) {
     }

@@ -13,6 +13,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
 use Spatie\LaravelData\DataCollection;
@@ -35,6 +36,7 @@ class Schema extends Data
         public ?Schema $items = null,
         public ?string $ref = null,
         /** @var DataCollection<int,Property> */
+        #[DataCollectionOf(Property::class)]
         protected ?DataCollection $properties = null,
     ) {
         $this->type     = self::CASTS[$this->type] ?? $this->type;
