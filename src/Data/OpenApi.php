@@ -43,7 +43,7 @@ class OpenApi extends Data
         /** @var array<string,array<string,Operation>> $paths */
         $paths = [];
 
-        foreach ($routes as $uri => $uri_routes) {
+        foreach ($routes as $uri            => $uri_routes) {
             foreach ($uri_routes as $method => $route) {
                 try {
                     $paths[$uri][$method] = Operation::fromRoute($route);
@@ -68,11 +68,11 @@ class OpenApi extends Data
         $this->resolveSchemas();
 
         $paths = [
-            'paths'                   => count($this->paths) > 0 ? array_map(
-                fn (array $path)      => array_map(
-            fn (Operation $operation) => $operation->toArray(),
-            $path
-        ),
+            'paths' => count($this->paths) > 0 ? array_map(
+                fn (array $path) => array_map(
+                    fn (Operation $operation) => $operation->toArray(),
+                    $path
+                ),
                 $this->paths
             ) : new stdClass(), ];
 

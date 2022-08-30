@@ -16,7 +16,8 @@ use ReflectionProperty;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
 use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Support\TransformationType;
+use Spatie\LaravelData\Support\DataProperty;
+use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 use UnitEnum;
 
 class Schema extends Data
@@ -33,17 +34,36 @@ class Schema extends Data
         public ?string $format = null,
         public ?Schema $items = null,
         public ?string $ref = null,
-        /** @var DataCollection<Property> */
+        /** @var DataCollection<int,Property> */
         protected ?DataCollection $properties = null,
     ) {
         $this->type     = self::CASTS[$this->type] ?? $this->type;
         $this->nullable = $this->nullable ? $this->nullable : null;
     }
 
-    public static function fromDataReflection(string|ReflectionNamedType $type_name, ReflectionMethod|ReflectionFunction|ReflectionProperty|null $reflection = null): self
+    public static function fromDataPropery(DataProperty $property): self
     {
-        $nullable = false;
+        $type = $property->type;
 
+        if ($type->dataClass) {
+            return self::fromData($type->dataClass, $type->isNullable || $type->isOptional);
+        }
+
+        /** @var null|string */
+        $other_type = array_keys($type->acceptedTypes)[0] ?? null;
+
+        if (! $other_type) {
+            throw new \RuntimeException("Parameter {$property->name} has no type defined");
+        }
+
+        return self::fromDataReflection(type_name: $other_type, nullable: $type->isNullable);
+    }
+
+    public static function fromDataReflection(
+        string|ReflectionNamedType $type_name,
+        ReflectionMethod|ReflectionFunction|ReflectionProperty|null $reflection = null,
+        bool $nullable = false,
+    ): self {
         if ($type_name instanceof ReflectionNamedType) {
             $nullable  = $type_name->allowsNull();
             $type_name = $type_name->getName();
@@ -96,10 +116,12 @@ class Schema extends Data
     /**
      * @return array<int|string,mixed>
      */
-    public function transform(TransformationType $type): array
-    {
+    public function transform(
+        bool $transformValues = true,
+        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+    ): array {
         $array = array_filter(
-            parent::transform($type),
+            parent::transform($transformValues, $wrapExecutionType),
             fn (mixed $value) => null !== $value,
         );
 
@@ -115,7 +137,7 @@ class Schema extends Data
 
         if (null !== $this->properties) {
             $array['properties'] = collect($this->properties->all())
-                ->mapWithKeys(fn (Property $property) => [$property->getName() => $property->type->transform($type)])
+                ->mapWithKeys(fn (Property $property) => [$property->getName() => $property->type->transform($transformValues, $wrapExecutionType)])
                 ->toArray();
         }
 

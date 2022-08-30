@@ -3,9 +3,6 @@
 namespace Xolvio\OpenApiGenerator\Data;
 
 use ReflectionClass;
-use ReflectionNamedType;
-use ReflectionProperty;
-use Spatie\Invade\Invader;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
 use Spatie\LaravelData\DataCollection;
@@ -25,6 +22,9 @@ class Property extends Data
         return $this->name;
     }
 
+    /**
+     * @return DataCollection<int,self>
+     */
     public static function fromDataClass(string $class): DataCollection
     {
         if (! is_a($class, LaravelData::class, true)) {
@@ -32,30 +32,22 @@ class Property extends Data
         }
 
         /** @var class-string<LaravelData> $class */
-        $data_class = new DataClass(new ReflectionClass($class));
+        $data_class = DataClass::create(new ReflectionClass($class));
 
-        $properties = $data_class->properties()
-            ->map(static function (DataProperty $property) {
-                /** @var ReflectionProperty */
-                $reflection = (new Invader($property))->property; // @phpstan-ignore-line Invader not supported by phpstan
+        $properties = $data_class->properties
+            ->map(fn (DataProperty $property) => self::fromProperty($property));
 
-                return self::fromProperty($reflection);
-            });
+        /** @var DataCollection<int,self> */
+        $collection = self::collection($properties->all());
 
-        return self::collection($properties->all());
+        return $collection;
     }
 
-    public static function fromProperty(ReflectionProperty $property): self
+    public static function fromProperty(DataProperty $property): self
     {
-        $type = $property->getType();
-
-        if (! $type instanceof ReflectionNamedType) {
-            throw new \RuntimeException('Type is not named');
-        }
-
         return new self(
-            name: $property->getName(),
-            type: Schema::fromDataReflection($type, $property),
+            name: $property->name,
+            type: Schema::fromDataPropery($property),
         );
     }
 }

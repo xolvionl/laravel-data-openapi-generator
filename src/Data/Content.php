@@ -7,7 +7,7 @@ use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionNamedType;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Support\TransformationType;
+use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 use Xolvio\OpenApiGenerator\Attributes\CustomContentType;
 
 class Content extends Data
@@ -30,10 +30,12 @@ class Content extends Data
     /**
      * @return array<int|string,mixed>
      */
-    public function transform(TransformationType $type): array
-    {
+    public function transform(
+        bool $transformValues = true,
+        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+    ): array {
         return collect($this->types)->mapWithKeys(
-            fn (string $content_type) => [$content_type => parent::transform($type)]
+            fn (string $content_type) => [$content_type => parent::transform($transformValues, $wrapExecutionType)]
         )->toArray();
     }
 

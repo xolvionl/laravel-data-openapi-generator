@@ -22,6 +22,9 @@ class Parameter extends Data
     ) {
     }
 
+    /**
+     * @return null|DataCollection<int,Parameter>
+     */
     public static function fromRoute(Route $route, ReflectionMethod|ReflectionFunction $method): ?DataCollection
     {
         /** @var string[] */

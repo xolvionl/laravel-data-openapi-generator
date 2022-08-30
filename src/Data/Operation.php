@@ -8,16 +8,16 @@ use Illuminate\Routing\Route;
 use ReflectionFunction;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Support\TransformationType;
+use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 
 class Operation extends Data
 {
     public function __construct(
-        /** @var DataCollection<Parameter> */
+        /** @var DataCollection<int,Parameter> */
         public ?DataCollection $parameters,
         public ?RequestBody $requestBody,
         public DefaultResponse $responses,
-        /** @var null|DataCollection<SecurityScheme> */
+        /** @var null|DataCollection<int,SecurityScheme> */
         public ?DataCollection $security,
     ) {
     }
@@ -46,10 +46,12 @@ class Operation extends Data
     /**
      * @return array<int|string,mixed>
      */
-    public function transform(TransformationType $type): array
-    {
+    public function transform(
+        bool $transformValues = true,
+        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+    ): array {
         return array_filter(
-            parent::transform($type),
+            parent::transform($transformValues, $wrapExecutionType),
             fn (mixed $value) => null !== $value,
         );
     }

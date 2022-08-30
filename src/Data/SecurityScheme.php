@@ -5,7 +5,7 @@ namespace Xolvio\OpenApiGenerator\Data;
 use Illuminate\Routing\Route;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Support\TransformationType;
+use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 
 class SecurityScheme extends Data
 {
@@ -19,7 +19,7 @@ class SecurityScheme extends Data
     }
 
     /**
-     * @return null|DataCollection<self>
+     * @return null|DataCollection<int,self>
      */
     public static function fromRoute(Route $route): ?DataCollection
     {
@@ -52,8 +52,10 @@ class SecurityScheme extends Data
     /**
      * @return array<int|string,mixed>
      */
-    public function transform(TransformationType $type): array
-    {
+    public function transform(
+        bool $transformValues = true,
+        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+    ): array {
         return [$this->scheme => $this->permissions];
     }
 

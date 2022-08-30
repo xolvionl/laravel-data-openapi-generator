@@ -38,7 +38,7 @@ class Controller extends LaravelController
     }
 
     /**
-     * @return DataCollection<\Xolvio\OpenApiGenerator\Test\ReturnData>
+     * @return DataCollection<int,\Xolvio\OpenApiGenerator\Test\ReturnData>
      */
     public function collection(): DataCollection
     {
@@ -46,7 +46,7 @@ class Controller extends LaravelController
     }
 
     /**
-     * @return DataCollection<ReturnData>
+     * @return DataCollection<int,ReturnData>
      */
     public function collectionIncompletePath(): DataCollection
     {

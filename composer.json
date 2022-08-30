@@ -36,7 +36,7 @@
         ]
     },
     "require": {
-        "spatie/laravel-data": "^1",
+        "spatie/laravel-data": "^2",
         "laravel/framework": "^8|^9",
         "phpdocumentor/reflection-docblock": "^5.3",
         "spatie/invade": "^1.0"
