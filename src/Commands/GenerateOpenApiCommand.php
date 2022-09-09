@@ -2,6 +2,7 @@
 
 namespace Xolvio\OpenApiGenerator\Commands;
 
+use App\Facades\Str;
 use Illuminate\Console\Command;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\File;
@@ -48,8 +49,12 @@ class GenerateOpenApiCommand extends Command
         /** @var array<int,Route> */
         $initial_routes = array_values(array_filter(
             FacadeRoute::getRoutes()->getRoutes(),
-            fn (Route $route) => in_array($route->getPrefix(), config('openapi-generator.included_route_prefixes', []), true)
-                && ! $this->strStartsWith($route->getName() ?? '', config('openapi-generator.ignored_route_names', [])),
+            function (Route $route) {
+                $first_prefix = explode('/', $route->getPrefix())[0];
+
+                return in_array($first_prefix, config('openapi-generator.included_route_prefixes', []), true)
+                && ! $this->strStartsWith($route->getName() ?? '', config('openapi-generator.ignored_route_names', []));
+            },
         ));
 
         foreach ($initial_routes as $route) {
