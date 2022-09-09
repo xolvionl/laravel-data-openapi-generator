@@ -54,7 +54,7 @@ it('can create ref data schema', function () {
                 '$ref' => '#/components/schemas/' . class_basename($class),
             ]);
 
-        expect(OpenApi::getSchemas())->toMatchArray(
+        expect(OpenApi::getTempSchemas())->toMatchArray(
             [class_basename($class) => $class]
         );
     }

@@ -75,11 +75,13 @@ it('can create properties from data class', function () {
                 ],
             ],
             [
-                'type' => 'string',
+                'type'   => 'string',
+                'format' => 'date-time',
             ],
             [
                 'type'     => 'string',
                 'nullable' => true,
+                'format'   => 'date-time',
             ],
         ]);
 });

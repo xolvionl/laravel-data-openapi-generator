@@ -13,6 +13,9 @@ class OpenApi extends Data
     /** @var array<string,class-string<Data>> */
     protected static array $schemas = [];
 
+    /** @var array<string,class-string<Data>> */
+    protected static array $temp_schemas = [];
+
     public function __construct(
         public string $openapi,
         public Info $info,
@@ -26,13 +29,19 @@ class OpenApi extends Data
      */
     public static function addClassSchema(string $name, $schema): void
     {
-        static::$schemas[$name] = $schema;
+        static::$temp_schemas[$name] = $schema;
     }
 
     /** @return array<string,class-string<Data>> */
     public static function getSchemas(): array
     {
         return static::$schemas;
+    }
+
+    /** @return array<string,class-string<Data>> */
+    public static function getTempSchemas(): array
+    {
+        return static::$temp_schemas;
     }
 
     /**
@@ -46,7 +55,11 @@ class OpenApi extends Data
         foreach ($routes as $uri => $uri_routes) {
             foreach ($uri_routes as $method => $route) {
                 try {
+                    self::$temp_schemas = [];
+
                     $paths[$uri][$method] = Operation::fromRoute($route);
+
+                    self::addTempSchemas();
                 } catch (\Throwable $th) {
                     $command->error("Failed to generate Operation from route {$method} {$route->getName()} {$uri}: {$th->getMessage()}");
 
@@ -90,6 +103,14 @@ class OpenApi extends Data
                     ],
                 ],
             ]
+        );
+    }
+
+    protected static function addTempSchemas(): void
+    {
+        static::$schemas = array_merge(
+            static::$schemas,
+            static::$temp_schemas,
         );
     }
 
