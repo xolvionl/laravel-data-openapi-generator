@@ -63,5 +63,5 @@ it('can create ref data schema', function () {
 it('can create data schema', function () {
     $schema = Schema::fromDataClass(RequestData::class);
     expect($schema)->toHaveProperty('type', 'object');
-    expect($schema->toArray()['properties'])->toHaveLength(11);
+    expect($schema->toArray()['properties'])->toHaveLength(13);
 });

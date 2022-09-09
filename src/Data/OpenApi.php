@@ -68,11 +68,11 @@ class OpenApi extends Data
         $this->resolveSchemas();
 
         $paths = [
-            'paths'                   => count($this->paths) > 0 ? array_map(
-                fn (array $path)      => array_map(
-            fn (Operation $operation) => $operation->toArray(),
-            $path
-        ),
+            'paths'                           => count($this->paths) > 0 ? array_map(
+                fn (array $path)              => array_map(
+                    fn (Operation $operation) => $operation->toArray(),
+                    $path
+                ),
                 $this->paths
             ) : new stdClass(), ];
 

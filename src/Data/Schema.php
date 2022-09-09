@@ -2,6 +2,7 @@
 
 namespace Xolvio\OpenApiGenerator\Data;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
@@ -50,6 +51,10 @@ class Schema extends Data
         }
 
         $is_class = class_exists($type_name);
+
+        if (is_a($type_name, DateTimeInterface::class, true)) {
+            return self::fromDateTime($nullable);
+        }
 
         if (! $is_class && 'array' !== $type_name) {
             return self::fromBuiltin($type_name, $nullable);
@@ -125,6 +130,11 @@ class Schema extends Data
     protected static function fromBuiltin(string $type_name, bool $nullable): self
     {
         return new self(type: $type_name, nullable: $nullable);
+    }
+
+    protected static function fromDateTime(bool $nullable): self
+    {
+        return new self(type: 'string', format: 'date-time', nullable: $nullable);
     }
 
     protected static function fromEnum(string $type, bool $nullable): self

@@ -74,6 +74,13 @@ it('can create properties from data class', function () {
                     ['$ref' => '#/components/schemas/ReturnData'],
                 ],
             ],
+            [
+                'type' => 'string',
+            ],
+            [
+                'type'     => 'string',
+                'nullable' => true,
+            ],
         ]);
 });
 
