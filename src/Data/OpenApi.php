@@ -126,9 +126,13 @@ class OpenApi extends Data
      */
     protected function resolveSchemas(): array
     {
-        return array_map(
+        $schemas = array_map(
             fn (string $schema) => Schema::fromDataClass($schema)->toArray(),
             static::$schemas
         );
+
+        $this->addTempSchemas();
+
+        return $schemas;
     }
 }
