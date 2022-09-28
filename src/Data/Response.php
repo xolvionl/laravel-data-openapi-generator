@@ -29,4 +29,20 @@ class Response extends Data
             content: Content::fromReflection($type, $method),
         );
     }
+
+    public static function unauthorized(ReflectionMethod|ReflectionFunction $method): self
+    {
+        return new self(
+            description: 'Unauthorized',
+            content: Content::fromClass(config('openapi-generator.error_scheme_class'), $method),
+        );
+    }
+
+    public static function forbidden(ReflectionMethod|ReflectionFunction $method): self
+    {
+        return new self(
+            description: 'Forbidden',
+            content: Content::fromClass(config('openapi-generator.error_scheme_class'), $method),
+        );
+    }
 }

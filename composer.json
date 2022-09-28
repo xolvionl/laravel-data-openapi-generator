@@ -28,6 +28,9 @@
         "format": [
             "@php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --verbose --config=./php-cs.php --path-mode=intersection . --ansi"
         ],
+        "format-dry": [
+            "@php ./vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --verbose --config=./php-cs.php --path-mode=intersection . --ansi"
+        ],
         "larastan": [
             "vendor/bin/phpstan analyse"
         ],
@@ -42,9 +45,9 @@
         "spatie/invade": "^1.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.8",
-        "nunomaduro/larastan": "^2.1",
-        "orchestra/testbench": "^7.5",
+        "friendsofphp/php-cs-fixer": "^3.11",
+        "nunomaduro/larastan": "^2.2",
+        "orchestra/testbench": "^7.8",
         "pestphp/pest": "^1.21"
     },
     "config": {

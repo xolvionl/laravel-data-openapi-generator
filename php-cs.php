@@ -4,6 +4,7 @@
  */
 $excluded_folders = [
     'vendor',
+    'src/bootstrap',
 ];
 $finder = PhpCsFixer\Finder::create()
     ->exclude($excluded_folders)

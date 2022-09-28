@@ -48,7 +48,7 @@ class GenerateOpenApiCommand extends Command
         /** @var array<int,Route> */
         $initial_routes = array_values(array_filter(
             FacadeRoute::getRoutes()->getRoutes(),
-            fn (Route $route) => in_array($route->getPrefix(), config('openapi-generator.included_route_prefixes', []), true)
+            fn (Route $route) => $this->strStartsWith($route->getPrefix() ?? '', config('openapi-generator.included_route_prefixes', []))
                 && ! $this->strStartsWith($route->getName() ?? '', config('openapi-generator.ignored_route_names', [])),
         ));
 

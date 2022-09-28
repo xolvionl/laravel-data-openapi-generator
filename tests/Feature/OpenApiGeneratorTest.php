@@ -11,8 +11,15 @@ beforeAll(function () {
     }
 
     Route::prefix('api')->group(function () {
-        Route::post('/{parameter_1}/{parameter_2}/{parameter_3}/', [Controller::class, 'allCombined'])->name('allCombined');
-        Route::post('/contentType/', [Controller::class, 'contentType'])->name('contentType');
+        Route::post('/{parameter_1}/{parameter_2}/{parameter_3}', [Controller::class, 'allCombined'])
+            ->name('allCombined');
+        Route::post('/contentType', [Controller::class, 'contentType'])
+            ->name('contentType');
+        Route::get('/auth', [Controller::class, 'basic'])
+            ->can('permission1')
+            ->middleware('can:permission2')
+            ->middleware('auth:sanctum')
+            ->name('auth');
     });
 });
 

@@ -6,6 +6,7 @@ use ReflectionClass;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionNamedType;
+use ReflectionType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 use Xolvio\OpenApiGenerator\Attributes\CustomContentType;
@@ -27,6 +28,16 @@ class Content extends Data
         );
     }
 
+    public static function fromClass(string $class, ReflectionMethod|ReflectionFunction $method): self
+    {
+        $type = $method->getReturnType();
+
+        return new self(
+            types: self::typesFromReflection($type),
+            schema: Schema::fromDataReflection($class),
+        );
+    }
+
     /**
      * @return array<int|string,mixed>
      */
@@ -42,12 +53,11 @@ class Content extends Data
     /**
      * @return string[]
      */
-    protected static function typesFromReflection(ReflectionNamedType $type): array
+    protected static function typesFromReflection(ReflectionNamedType|ReflectionType|null $type): array
     {
-        /** @var class-string $name */
-        $name = $type->getName();
-
-        if (! $type->isBuiltin()) {
+        if ($type instanceof ReflectionNamedType && ! $type->isBuiltin()) {
+            /** @var class-string $name */
+            $name       = $type->getName();
             $reflection = new ReflectionClass($name);
 
             $custom_content_attribute = $reflection->getAttributes(CustomContentType::class);

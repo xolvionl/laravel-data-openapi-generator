@@ -2,6 +2,8 @@
 
 namespace Xolvio\OpenApiGenerator\Test;
 
+use DateTime;
+use DateTimeInterface;
 use Spatie\LaravelData\Data;
 
 class RequestData extends Data
@@ -18,6 +20,8 @@ class RequestData extends Data
         public ?RequestData $nullable_self,
         public ReturnData $other,
         public ?ReturnData $nullable_other,
+        public DateTimeInterface $date,
+        public ?DateTimeInterface $nullable_date,
     ) {
     }
 
@@ -35,6 +39,8 @@ class RequestData extends Data
             nullable_self: null,
             other: new ReturnData(),
             nullable_other: null,
+            date: new DateTime(),
+            nullable_date: null,
         );
     }
 }
