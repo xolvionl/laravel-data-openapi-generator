@@ -4,10 +4,10 @@ namespace Xolvio\OpenApiGenerator\Data;
 
 use Spatie\LaravelData\Data;
 
-class DefaultResponse extends Data
+class Error extends Data
 {
     public function __construct(
-        public Response $default,
+        public string $message,
     ) {
     }
 }

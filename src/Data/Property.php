@@ -48,7 +48,7 @@ class Property extends Data
     {
         return new self(
             name: $reflection->getName(),
-            type: Schema::fromReflectopnProperty($reflection),
+            type: Schema::fromReflectionProperty($reflection),
         );
     }
 }

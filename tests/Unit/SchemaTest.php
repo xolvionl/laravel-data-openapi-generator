@@ -54,7 +54,7 @@ it('can create ref data schema', function () {
                 '$ref' => '#/components/schemas/' . class_basename($class),
             ]);
 
-        expect(OpenApi::getSchemas())->toMatchArray(
+        expect(OpenApi::getTempSchemas())->toMatchArray(
             [class_basename($class) => $class]
         );
     }
@@ -63,5 +63,5 @@ it('can create ref data schema', function () {
 it('can create data schema', function () {
     $schema = Schema::fromDataClass(RequestData::class);
     expect($schema)->toHaveProperty('type', 'object');
-    expect($schema->toArray()['properties'])->toHaveLength(11);
+    expect($schema->toArray()['properties'])->toHaveLength(13);
 });

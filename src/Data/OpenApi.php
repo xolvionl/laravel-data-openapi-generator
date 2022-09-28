@@ -14,6 +14,9 @@ class OpenApi extends Data
     /** @var array<string,class-string<Data>> */
     protected static array $schemas = [];
 
+    /** @var array<string,class-string<Data>> */
+    protected static array $temp_schemas = [];
+
     public function __construct(
         public string $openapi,
         public Info $info,
@@ -27,7 +30,7 @@ class OpenApi extends Data
      */
     public static function addClassSchema(string $name, $schema): void
     {
-        static::$schemas[$name] = $schema;
+        static::$temp_schemas[$name] = $schema;
     }
 
     /** @return array<string,class-string<Data>> */
@@ -35,6 +38,12 @@ class OpenApi extends Data
     {
         return static::$schemas;
     }
+
+ /** @return array<string,class-string<Data>> */
+ public static function getTempSchemas(): array
+ {
+     return static::$temp_schemas;
+ }
 
     /**
      * @param array<string,array<string,Route>> $routes
@@ -44,10 +53,14 @@ class OpenApi extends Data
         /** @var array<string,array<string,Operation>> $paths */
         $paths = [];
 
-        foreach ($routes as $uri            => $uri_routes) {
+        foreach ($routes as $uri => $uri_routes) {
             foreach ($uri_routes as $method => $route) {
                 try {
+                    self::$temp_schemas = [];
+
                     $paths[$uri][$method] = Operation::fromRoute($route);
+
+                    self::addTempSchemas();
                 } catch (\Throwable $th) {
                     $command->error("Failed to generate Operation from route {$method} {$route->getName()} {$uri}: {$th->getMessage()}");
 
@@ -72,13 +85,16 @@ class OpenApi extends Data
         $this->resolveSchemas();
 
         $paths = [
-            'paths' => count($this->paths) > 0 ? array_map(
-                fn (array $path) => array_map(
-                    fn (Operation $operation) => $operation->toArray(),
-                    $path
-                ),
-                $this->paths
-            ) : new stdClass(), ];
+            'paths' => count($this->paths) > 0 ?
+                array_map(
+                    fn (array $path) => array_map(
+                        fn (Operation $operation) => $operation->toArray(),
+                        $path
+                    ),
+                    $this->paths
+                ) :
+                new stdClass(),
+        ];
 
         return array_merge(
             parent::transform($transformValues, $wrapExecutionType),
@@ -94,6 +110,14 @@ class OpenApi extends Data
                     ],
                 ],
             ]
+        );
+    }
+
+    protected static function addTempSchemas(): void
+    {
+        static::$schemas = array_merge(
+            static::$schemas,
+            static::$temp_schemas,
         );
     }
 

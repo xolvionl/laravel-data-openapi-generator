@@ -80,4 +80,14 @@ return [
         'api.openapi.',
         'api.not_found',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Error scheme class
+    |--------------------------------------------------------------------------
+    |
+    | Data class used to create the error scheme.
+    |
+    */
+    'error_scheme_class' => \Xolvio\OpenApiGenerator\Data\Error::class,
 ];

@@ -51,7 +51,7 @@ it('can create data request body', function () {
                 ],
             ]);
 
-        expect(OpenApi::getSchemas())->toMatchArray(
+        expect(OpenApi::getTempSchemas())->toMatchArray(
             ['RequestData' => 'Xolvio\\OpenApiGenerator\\Test\\RequestData']
         );
     }

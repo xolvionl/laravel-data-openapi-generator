@@ -24,16 +24,10 @@ class SecurityScheme extends Data
     public static function fromRoute(Route $route): ?DataCollection
     {
         $security    = [];
-        $permissions = [];
+        $permissions = static::getPermissions($route);
 
         /** @var string[] $middlewares */
         $middlewares = $route->middleware();
-
-        foreach ($middlewares as $middleware) {
-            if (str_starts_with($middleware, 'can:')) {
-                $permissions[] = self::strAfter($middleware, 'can:');
-            }
-        }
 
         if (in_array('auth:sanctum', $middlewares)) {
             $security[] = new self(
@@ -47,6 +41,26 @@ class SecurityScheme extends Data
         }
 
         return self::collection($security);
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getPermissions(Route $route): array
+    {
+        /** @var string[] */
+        $permissions = [];
+
+        /** @var string[] $middlewares */
+        $middlewares = $route->middleware();
+
+        foreach ($middlewares as $middleware) {
+            if (str_starts_with($middleware, 'can:')) {
+                $permissions[] = self::strAfter($middleware, 'can:');
+            }
+        }
+
+        return $permissions;
     }
 
     /**
