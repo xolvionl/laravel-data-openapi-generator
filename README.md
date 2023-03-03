@@ -11,26 +11,26 @@ In `composer.json` add:
 ```json
     "repositories": [
         {
-            "type": "gitlab",
-            "url": "https://gitlab.com/xolvio-nl/laravel-data-openapi-generator"
+            "type": "github",
+            "url": "https://github.com/xolvionl/laravel-data-openapi-generator"
         }
     ],
 ```
 
 ## Add GitLab auth token
 
-1. Create Auth token with api or api_read rights: https://gitlab.com/-/profile/personal_access_tokens
-2. Run `composer config --global --auth gitlab-token.gitlab.com TOKEN_HERE`
+1. Create Auth token with repo rights: https://github.com/settings/tokens/new
+2. Run `composer config --global --auth github-oauth.github.com TOKEN_HERE`
 
 ## Install
 
-`composer require xolvio/laravel-data-openapi-generator:dev-main`
+`composer require xolvio/laravel-data-openapi-generator`
 
-If there is a GitLab Runner involved, make sure to add this to the job that runs `composer i`:
+If there is a Github action involved, make sure to add this to the job that runs `composer i`:
 
 ```yml
   before_script:
-    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+    - git config --global github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}"
 ```
 
 # Optional
