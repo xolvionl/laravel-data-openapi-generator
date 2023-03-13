@@ -134,6 +134,7 @@ class Schema extends Data
     public function transform(
         bool $transformValues = true,
         WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+        bool $mapPropertyNames = true,
     ): array {
         $array = array_filter(
             parent::transform($transformValues, $wrapExecutionType),
@@ -152,7 +153,7 @@ class Schema extends Data
 
         if (null !== $this->properties) {
             $array['properties'] = collect($this->properties->all())
-                ->mapWithKeys(fn (Property $property) => [$property->getName() => $property->type->transform($transformValues, $wrapExecutionType)])
+                ->mapWithKeys(fn (Property $property) => [$property->getName() => $property->type->transform($transformValues, $wrapExecutionType, $mapPropertyNames)])
                 ->toArray();
         }
 

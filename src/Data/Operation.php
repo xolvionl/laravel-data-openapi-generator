@@ -79,9 +79,10 @@ class Operation extends Data
     public function transform(
         bool $transformValues = true,
         WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+        bool $mapPropertyNames = true,
     ): array {
         return array_filter(
-            parent::transform($transformValues, $wrapExecutionType),
+            parent::transform($transformValues, $wrapExecutionType, $mapPropertyNames),
             fn (mixed $value) => null !== $value,
         );
     }

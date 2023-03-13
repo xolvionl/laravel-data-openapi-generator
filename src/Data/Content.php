@@ -44,9 +44,10 @@ class Content extends Data
     public function transform(
         bool $transformValues = true,
         WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+        bool $mapPropertyNames = true,
     ): array {
         return collect($this->types)->mapWithKeys(
-            fn (string $content_type) => [$content_type => parent::transform($transformValues, $wrapExecutionType)]
+            fn (string $content_type) => [$content_type => parent::transform($transformValues, $wrapExecutionType, $mapPropertyNames)]
         )->toArray();
     }
 

@@ -79,8 +79,11 @@ class OpenApi extends Data
     /**
      * @return array<string,mixed>
      */
-    public function transform(bool $transformValues = true, WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled): array
-    {
+    public function transform(
+        bool $transformValues = true,
+        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+        bool $mapPropertyNames = true,
+    ): array {
         // Double call to make sure all schemas are resolved
         $this->resolveSchemas();
 
@@ -97,7 +100,7 @@ class OpenApi extends Data
         ];
 
         return array_merge(
-            parent::transform($transformValues, $wrapExecutionType),
+            parent::transform($transformValues, $wrapExecutionType, $mapPropertyNames),
             $paths,
             [
                 'components' => [

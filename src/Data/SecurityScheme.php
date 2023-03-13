@@ -69,6 +69,7 @@ class SecurityScheme extends Data
     public function transform(
         bool $transformValues = true,
         WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
+        bool $mapPropertyNames = true,
     ): array {
         return [$this->scheme => $this->permissions];
     }
