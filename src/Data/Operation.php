@@ -6,6 +6,7 @@ use Closure;
 use Exception;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Routing\Route;
+use ReflectionClass;
 use ReflectionFunction;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
@@ -20,7 +21,7 @@ class Operation extends Data
         #[DataCollectionOf(Parameter::class)]
         public ?DataCollection $parameters,
         public ?RequestBody $requestBody,
-        /** @var DataCollection<string,SecurityScheme> */
+        /** @var DataCollection<string,Response> */
         #[DataCollectionOf(Response::class)]
         public DataCollection $responses,
         /** @var null|DataCollection<int,SecurityScheme> */
@@ -34,7 +35,7 @@ class Operation extends Data
         $uses = $route->action['uses'];
 
         if (is_string($uses)) {
-            $controller_function = (new \ReflectionClass($route->getController()))
+            $controller_function = (new ReflectionClass($route->getController()))
                 ->getMethod($route->getActionMethod());
         } elseif ($uses instanceof Closure) {
             $controller_function = new ReflectionFunction($uses);

@@ -25,4 +25,5 @@ return (new PhpCsFixer\Config())
         'multiline_whitespace_before_semicolons' => ['strategy' => 'no_multi_line'],
         'blank_line_before_statement'            => ['statements' => ['break', 'continue', 'default', 'exit', 'goto', 'include', 'include_once', 'phpdoc', 'require', 'require_once', 'return', 'switch', 'throw', 'try']],
         'phpdoc_to_comment'                      => ['ignored_tags' => ['var']],
+        'global_namespace_import'                => true,
     ])->setFinder($finder);

@@ -19,7 +19,7 @@ class SecurityScheme extends Data
     }
 
     /**
-     * @return null|DataCollection<int,self>
+     * @return null|DataCollection<int,static>
      */
     public static function fromRoute(Route $route): ?DataCollection
     {

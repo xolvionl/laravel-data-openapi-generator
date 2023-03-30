@@ -4,6 +4,7 @@ namespace Xolvio\OpenApiGenerator\Data;
 
 use ReflectionClass;
 use ReflectionProperty;
+use RuntimeException;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
 use Spatie\LaravelData\DataCollection;
@@ -27,7 +28,7 @@ class Property extends Data
     public static function fromDataClass(string $class): DataCollection
     {
         if (! is_a($class, LaravelData::class, true)) {
-            throw new \RuntimeException('Class does not extend LaravelData');
+            throw new RuntimeException('Class does not extend LaravelData');
         }
 
         $reflection = new ReflectionClass($class);

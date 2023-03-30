@@ -14,6 +14,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use RuntimeException;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
@@ -64,7 +65,7 @@ class Schema extends Data
         $other_type = array_keys($type->acceptedTypes)[0] ?? null;
 
         if (! $other_type) {
-            throw new \RuntimeException("Parameter {$property->name} has no type defined");
+            throw new RuntimeException("Parameter {$property->name} has no type defined");
         }
 
         return self::fromDataReflection(type_name: $other_type, reflection: $reflection, nullable: $type->isNullable);
@@ -106,7 +107,7 @@ class Schema extends Data
         $type = $parameter->getType();
 
         if (! $type instanceof ReflectionNamedType) {
-            throw new \RuntimeException("Parameter {$parameter->getName()} has no type defined");
+            throw new RuntimeException("Parameter {$parameter->getName()} has no type defined");
         }
 
         $type_name = $type->getName();
@@ -188,13 +189,13 @@ class Schema extends Data
         $type_name = ltrim($type_name, '\\');
 
         if (! is_a($type_name, LaravelData::class, true)) {
-            throw new \RuntimeException("Type {$type_name} is not a Data class");
+            throw new RuntimeException("Type {$type_name} is not a Data class");
         }
 
         $scheme_name = last(explode('\\', $type_name));
 
         if (! $scheme_name || ! is_string($scheme_name)) {
-            throw new \RuntimeException("Cannot read basename from {$type_name}");
+            throw new RuntimeException("Cannot read basename from {$type_name}");
         }
 
         /** @var class-string<LaravelData> $type_name */
@@ -211,7 +212,7 @@ class Schema extends Data
         $type_name = ltrim($type_name, '\\');
 
         if (! is_a($type_name, LaravelData::class, true)) {
-            throw new \RuntimeException("Type {$type_name} is not a Data class");
+            throw new RuntimeException("Type {$type_name} is not a Data class");
         }
 
         return new self(
@@ -225,7 +226,7 @@ class Schema extends Data
     {
         $docs = $reflection->getDocComment();
         if (! $docs) {
-            throw new \RuntimeException('Could not find required docblock of method/property ' . $reflection->getName());
+            throw new RuntimeException('Could not find required docblock of method/property ' . $reflection->getName());
         }
 
         $docblock = DocBlockFactory::createInstance()->create($docs);
@@ -238,19 +239,19 @@ class Schema extends Data
 
         /** @var null|Return_|Var_ $tag */
         if (! $tag) {
-            throw new \RuntimeException('Could not find required tag in docblock of method/property ' . $reflection->getName());
+            throw new RuntimeException('Could not find required tag in docblock of method/property ' . $reflection->getName());
         }
 
         $tag_type = $tag->getType();
 
         if (! $tag_type instanceof AbstractList) {
-            throw new \RuntimeException('Return tag of method ' . $reflection->getName() . ' is not a list');
+            throw new RuntimeException('Return tag of method ' . $reflection->getName() . ' is not a list');
         }
 
         $class = $tag_type->getValueType()->__toString();
 
         if (! class_exists($class)) {
-            throw new \RuntimeException('Cannot resolve "' . $class . '". Make sure to use the full path in the phpdoc including the first "\".');
+            throw new RuntimeException('Cannot resolve "' . $class . '". Make sure to use the full path in the phpdoc including the first "\".');
         }
 
         return new self(

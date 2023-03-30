@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
 use stdClass;
+use Throwable;
 
 class OpenApi extends Data
 {
@@ -61,7 +62,7 @@ class OpenApi extends Data
                     $paths[$uri][$method] = Operation::fromRoute($route);
 
                     self::addTempSchemas();
-                } catch (\Throwable $th) {
+                } catch (Throwable $th) {
                     $command->error("Failed to generate Operation from route {$method} {$route->getName()} {$uri}: {$th->getMessage()}");
 
                     Log::error($th);
