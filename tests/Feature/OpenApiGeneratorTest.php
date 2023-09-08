@@ -29,3 +29,9 @@ it('can generate json', function () {
     expect(File::exists(config('openapi-generator.path')))->toBe(true);
     expect(File::get(config('openapi-generator.path')))->toBeJson();
 });
+
+afterAll(function () {
+    if (File::exists(config('openapi-generator.path'))) {
+        File::delete(config('openapi-generator.path'));
+    }
+});

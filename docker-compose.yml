@@ -7,9 +7,8 @@ services:
     command: php-fpm -F
     hostname: laravel-data-openapi-generator
     extra_hosts:
-        - "laravel-data-openapi-generator.localhost:host-gateway"
+        - "host.docker.internal:host-gateway"
     environment:
-      TZ: ${TZ}
       COMPOSER_HOME: ~/.composer
       COMPOSER_CACHE_DIR: ~/.composer/cache
     restart: unless-stopped

@@ -1,0 +1,31 @@
+name: Code checks
+
+on:
+  pull_request:
+    branches:
+      - development
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  php-code-checks:
+    runs-on: ubuntu-latest
+    container: xolvionl/laravel:minimal
+    steps:
+      - name: Fix Git permissions
+        run: git config --global --add safe.directory *
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Composer validate
+        run: composer validate --strict
+      - name: Composer install
+        run: composer install
+      - name: Larastan
+        run: composer larastan
+      - name: Code style
+        run: composer format-dry
+      - name: Run tests
+        run: composer test
