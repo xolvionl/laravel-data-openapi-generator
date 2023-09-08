@@ -17,11 +17,6 @@ In `composer.json` add:
     ],
 ```
 
-## Add GitLab auth token
-
-1. Create Auth token with repo rights: https://github.com/settings/tokens/new
-2. Run `composer config --global --auth github-oauth.github.com TOKEN_HERE`
-
 ## Install
 
 `composer require xolvio/laravel-data-openapi-generator`
