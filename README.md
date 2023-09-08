@@ -6,7 +6,7 @@ Generate OpenAPI specification from Laravel routes and Laravel Data objects
 
 ## Add composer repository
 
-In `composer.json` add:
+In `composer.json` add this repository:
 
 ```json
     "repositories": [
@@ -20,13 +20,6 @@ In `composer.json` add:
 ## Install
 
 `composer require xolvio/laravel-data-openapi-generator`
-
-If there is a Github action involved, make sure to add this to the job that runs `composer i`:
-
-```yml
-  before_script:
-    - git config --global github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}"
-```
 
 # Optional
 
