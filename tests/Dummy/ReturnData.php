@@ -8,8 +8,7 @@ class ReturnData extends Data
 {
     public function __construct(
         public string $message = 'test',
-    ) {
-    }
+    ) {}
 
     public static function create(mixed ...$parameters): self
     {

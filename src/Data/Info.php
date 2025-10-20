@@ -9,8 +9,7 @@ class Info extends Data
     public function __construct(
         public string $title,
         public string $version,
-    ) {
-    }
+    ) {}
 
     public static function create(): self
     {

@@ -8,6 +8,5 @@ class Error extends Data
 {
     public function __construct(
         public string $message,
-    ) {
-    }
+    ) {}
 }

@@ -39,16 +39,16 @@
         ]
     },
     "require": {
-        "spatie/laravel-data": "^3.2",
-        "laravel/framework": "^8|^9|^10",
-        "phpdocumentor/reflection-docblock": "^5.3",
-        "spatie/invade": "^1.0"
+        "spatie/laravel-data": "^4",
+        "laravel/framework": "^8|^9|^10|^11|^12",
+        "phpdocumentor/reflection-docblock": "^5.4",
+        "spatie/invade": "^2"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.15",
-        "nunomaduro/larastan": "^2.5",
-        "orchestra/testbench": "^7.8",
-        "pestphp/pest": "^1.21"
+        "friendsofphp/php-cs-fixer": "^3.59",
+        "nunomaduro/larastan": "^2.9",
+        "orchestra/testbench": "^9",
+        "pestphp/pest": "^v2.34"
     },
     "config": {
         "allow-plugins": {

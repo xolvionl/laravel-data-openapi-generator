@@ -7,8 +7,8 @@ use Xolvio\OpenApiGenerator\Test\Controller;
 it('can create no security scheme', function () {
     $route = new Route('get', '/', [Controller::class, 'basic']);
 
-    expect(SecurityScheme::fromRoute($route)?->toArray())
-        ->toBeNull();
+    expect(SecurityScheme::fromRoute($route))
+        ->toHaveLength(0);
 });
 
 it('can create sanctum security scheme', function () {

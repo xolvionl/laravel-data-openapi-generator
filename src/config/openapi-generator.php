@@ -81,6 +81,10 @@ return [
         'api.not_found',
     ],
 
+    'security_middlewares' => [
+        \Xolvio\OpenApiGenerator\Data\SecurityScheme::BEARER_SECURITY_SCHEME => ['auth:sanctum'],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Error scheme class

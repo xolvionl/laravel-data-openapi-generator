@@ -22,8 +22,7 @@ class RequestData extends Data
         public ?ReturnData $nullable_other,
         public DateTimeInterface $date,
         public ?DateTimeInterface $nullable_date,
-    ) {
-    }
+    ) {}
 
     public static function create(): self
     {

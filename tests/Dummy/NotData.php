@@ -2,6 +2,4 @@
 
 namespace Xolvio\OpenApiGenerator\Test;
 
-class NotData
-{
-}
+class NotData {}

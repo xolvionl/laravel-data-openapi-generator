@@ -8,7 +8,8 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionType;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
+use Spatie\LaravelData\Support\Transformation\TransformationContext;
+use Spatie\LaravelData\Support\Transformation\TransformationContextFactory;
 use Xolvio\OpenApiGenerator\Attributes\CustomContentType;
 
 class Content extends Data
@@ -17,10 +18,9 @@ class Content extends Data
         /** @var string[] */
         protected array $types,
         public Schema $schema,
-    ) {
-    }
+    ) {}
 
-    public static function fromReflection(ReflectionNamedType $type, ReflectionMethod|ReflectionFunction $method): self
+    public static function fromReflection(ReflectionNamedType $type, ReflectionFunction|ReflectionMethod $method): self
     {
         return new self(
             types: self::typesFromReflection($type),
@@ -28,7 +28,7 @@ class Content extends Data
         );
     }
 
-    public static function fromClass(string $class, ReflectionMethod|ReflectionFunction $method): self
+    public static function fromClass(string $class, ReflectionFunction|ReflectionMethod $method): self
     {
         $type = $method->getReturnType();
 
@@ -42,19 +42,17 @@ class Content extends Data
      * @return array<int|string,mixed>
      */
     public function transform(
-        bool $transformValues = true,
-        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
-        bool $mapPropertyNames = true,
+        null|TransformationContext|TransformationContextFactory $transformationContext = null,
     ): array {
         return collect($this->types)->mapWithKeys(
-            fn (string $content_type) => [$content_type => parent::transform($transformValues, $wrapExecutionType, $mapPropertyNames)]
+            fn (string $content_type) => [$content_type => parent::transform($transformationContext)]
         )->toArray();
     }
 
     /**
      * @return string[]
      */
-    protected static function typesFromReflection(ReflectionNamedType|ReflectionType|null $type): array
+    protected static function typesFromReflection(null|ReflectionNamedType|ReflectionType $type): array
     {
         if ($type instanceof ReflectionNamedType && ! $type->isBuiltin()) {
             /** @var class-string $name */

@@ -37,6 +37,7 @@ it('can create int enum schema', function () {
     expect(Schema::fromDataReflection(IntEnum::class)->toArray())
         ->toBe([
             'type' => 'integer',
+            'enum' => [1],
         ]);
 });
 
@@ -44,6 +45,7 @@ it('can create string enum schema', function () {
     expect(Schema::fromDataReflection(StringEnum::class)->toArray())
         ->toBe([
             'type' => 'string',
+            'enum' => ['one'],
         ]);
 });
 

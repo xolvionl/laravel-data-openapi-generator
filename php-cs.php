@@ -26,4 +26,7 @@ return (new PhpCsFixer\Config())
         'blank_line_before_statement'            => ['statements' => ['break', 'continue', 'default', 'exit', 'goto', 'include', 'include_once', 'phpdoc', 'require', 'require_once', 'return', 'switch', 'throw', 'try']],
         'phpdoc_to_comment'                      => ['ignored_tags' => ['var']],
         'global_namespace_import'                => true,
+        'ordered_types'                          => false,
+        'fully_qualified_strict_types'           => false,
+        'string_implicit_backslashes'            => false,
     ])->setFinder($finder);

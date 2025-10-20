@@ -9,7 +9,7 @@ class CustomContentType
 {
     public function __construct(
         /** @var string[] $type */
-        public array $type
-    ) {
-    }
+        public array $type,
+        public bool $isBinary = false
+    ) {}
 }

@@ -10,7 +10,7 @@ it('can detect no request body', function () {
         $route  = new Route('get', '/', [Controller::class, $function]);
         $method = methodFromRoute($route);
 
-        expect(RequestBody::getFirstOfClassType($method, LaravelData::class))
+        expect(RequestBody::getFirstOfClassType($method, Data::class))
             ->toBeNull();
     }
 });
@@ -49,6 +49,7 @@ it('can create data request body', function () {
                         ],
                     ],
                 ],
+                'required' => true,
             ]);
 
         expect(OpenApi::getTempSchemas())->toMatchArray(

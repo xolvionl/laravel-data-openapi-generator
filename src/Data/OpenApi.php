@@ -6,7 +6,8 @@ use Illuminate\Console\Command;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Log;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
+use Spatie\LaravelData\Support\Transformation\TransformationContext;
+use Spatie\LaravelData\Support\Transformation\TransformationContextFactory;
 use stdClass;
 use Throwable;
 
@@ -23,15 +24,16 @@ class OpenApi extends Data
         public Info $info,
         /** @var array<string,array<string,Operation>> */
         protected array $paths,
-    ) {
-    }
+    ) {}
 
     /**
      * @param class-string<Data> $schema
      */
     public static function addClassSchema(string $name, $schema): void
     {
-        static::$temp_schemas[$name] = $schema;
+        if (! isset(static::$schemas[$name])) {
+            static::$temp_schemas[$name] = $schema;
+        }
     }
 
     /** @return array<string,class-string<Data>> */
@@ -40,11 +42,16 @@ class OpenApi extends Data
         return static::$schemas;
     }
 
- /** @return array<string,class-string<Data>> */
- public static function getTempSchemas(): array
- {
-     return static::$temp_schemas;
- }
+    public static function getSchema(string $name): ?string
+    {
+        return static::$schemas[$name] ?? (static::$temp_schemas[$name] ?? null);
+    }
+
+    /** @return array<string,class-string<Data>> */
+    public static function getTempSchemas(): array
+    {
+        return static::$temp_schemas;
+    }
 
     /**
      * @param array<string,array<string,Route>> $routes
@@ -59,7 +66,7 @@ class OpenApi extends Data
                 try {
                     self::$temp_schemas = [];
 
-                    $paths[$uri][$method] = Operation::fromRoute($route);
+                    $paths[$uri][$method] = Operation::fromRoute($route, $method);
 
                     self::addTempSchemas();
                 } catch (Throwable $th) {
@@ -81,12 +88,9 @@ class OpenApi extends Data
      * @return array<string,mixed>
      */
     public function transform(
-        bool $transformValues = true,
-        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
-        bool $mapPropertyNames = true,
+        null|TransformationContext|TransformationContextFactory $transformationContext = null,
     ): array {
-        // Double call to make sure all schemas are resolved
-        $this->resolveSchemas();
+        $schemas = $this->resolveSchemas();
 
         $paths = [
             'paths' => count($this->paths) > 0 ?
@@ -101,11 +105,11 @@ class OpenApi extends Data
         ];
 
         return array_merge(
-            parent::transform($transformValues, $wrapExecutionType, $mapPropertyNames),
+            parent::transform($transformationContext),
             $paths,
             [
                 'components' => [
-                    'schemas'         => $this->resolveSchemas(),
+                    'schemas'         => $schemas,
                     'securitySchemes' => [
                         SecurityScheme::BEARER_SECURITY_SCHEME => [
                             'type'   => 'http',
@@ -130,12 +134,14 @@ class OpenApi extends Data
      */
     protected function resolveSchemas(): array
     {
-        $schemas = array_map(
-            fn (string $schema) => Schema::fromDataClass($schema)->toArray(),
-            static::$schemas
-        );
-
-        $this->addTempSchemas();
+        do {
+            $this->addTempSchemas();
+            static::$temp_schemas = [];
+            $schemas              = array_map(
+                fn (string $schema) => Schema::fromDataClass($schema)->toArray(),
+                static::$schemas
+            );
+        } while (count(static::$temp_schemas) > 0);
 
         return $schemas;
     }

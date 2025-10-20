@@ -8,8 +8,8 @@ it('can create no parameter', function () {
         $route  = new Route('get', '/', [Controller::class, $function]);
         $method = methodFromRoute($route);
 
-        expect(Parameter::fromRoute($route, $method)?->toArray())
-            ->toBeNull();
+        expect(Parameter::fromRoute($route, $method))
+            ->toHaveLength(0);
     }
 });
 

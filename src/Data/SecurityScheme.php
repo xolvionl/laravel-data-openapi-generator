@@ -3,9 +3,10 @@
 namespace Xolvio\OpenApiGenerator\Data;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
+use Spatie\LaravelData\Support\Transformation\TransformationContext;
+use Spatie\LaravelData\Support\Transformation\TransformationContextFactory;
 
 class SecurityScheme extends Data
 {
@@ -15,32 +16,26 @@ class SecurityScheme extends Data
         protected string $scheme,
         /** @var string[] */
         public array $permissions = [],
-    ) {
-    }
+    ) {}
 
     /**
-     * @return null|DataCollection<int,static>
+     * @return Collection<int,static>
      */
-    public static function fromRoute(Route $route): ?DataCollection
+    public static function fromRoute(Route $route): Collection
     {
         $security    = [];
         $permissions = static::getPermissions($route);
 
         /** @var string[] $middlewares */
         $middlewares = $route->middleware();
-
-        if (in_array('auth:sanctum', $middlewares)) {
+        if (array_intersect(config('openapi-generator.security_middlewares.' . self::BEARER_SECURITY_SCHEME), $middlewares)) {
             $security[] = new self(
                 scheme: self::BEARER_SECURITY_SCHEME,
                 permissions: $permissions,
             );
         }
 
-        if (0 === count($security)) {
-            return null;
-        }
-
-        return self::collection($security);
+        return self::collect($security, Collection::class);
     }
 
     /**
@@ -67,9 +62,7 @@ class SecurityScheme extends Data
      * @return array<int|string,mixed>
      */
     public function transform(
-        bool $transformValues = true,
-        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
-        bool $mapPropertyNames = true,
+        null|TransformationContext|TransformationContextFactory $transformationContext = null,
     ): array {
         return [$this->scheme => $this->permissions];
     }

@@ -4,24 +4,29 @@ namespace Xolvio\OpenApiGenerator\Data;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\Types\AbstractList;
+use ReflectionClass;
 use ReflectionEnum;
+use ReflectionEnumBackedCase;
 use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use RuntimeException;
-use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
 use Spatie\LaravelData\DataCollection;
-use Spatie\LaravelData\Support\DataProperty;
-use Spatie\LaravelData\Support\Wrapping\WrapExecutionType;
+use Spatie\LaravelData\Support\Factories\DataPropertyFactory;
+use Spatie\LaravelData\Support\Transformation\TransformationContext;
+use Spatie\LaravelData\Support\Transformation\TransformationContextFactory;
 use UnitEnum;
+use Xolvio\OpenApiGenerator\Attributes\CustomContentType;
+use Xolvio\OpenApiGenerator\Attributes\HttpResponseStatus;
 
 class Schema extends Data
 {
@@ -37,38 +42,53 @@ class Schema extends Data
         public ?string $format = null,
         public ?Schema $items = null,
         public ?string $ref = null,
-        /** @var DataCollection<int,Property> */
-        #[DataCollectionOf(Property::class)]
-        protected ?DataCollection $properties = null,
+        /** @var Collection<int,Property> */
+        protected ?Collection $properties = null,
+        public ?array $enum = null,
     ) {
         $this->type     = self::CASTS[$this->type] ?? $this->type;
         $this->nullable = $this->nullable ? $this->nullable : null;
     }
 
+    /** @return Collection<int,Property> */
+    public function getObjectProperties(): Collection
+    {
+        if ('object' == $this->type) {
+            return $this->properties;
+        }
+
+        return collect();
+    }
+
+    public function resolveRef(): ?self
+    {
+        if (! $this->ref) {
+            return null;
+        }
+
+        return self::fromDataClass(OpenApi::getSchema(substr($this->ref, strlen('#/components/schemas/'))));
+    }
+
     public static function fromReflectionProperty(ReflectionProperty $reflection): self
     {
-        $property = DataProperty::create($reflection);
+        $property = app(DataPropertyFactory::class)->build(
+            $reflection,
+            $reflection->getDeclaringClass(),
+        );
 
         $type = $property->type;
 
         /** @var null|string */
         $data_class = $type->dataClass;
 
-        if ($type->isDataObject && $data_class) {
+        if ($type->kind->isDataObject() && $data_class) {
             return self::fromData($data_class, $type->isNullable || $type->isOptional);
         }
-        if ($type->isDataCollectable && $data_class) {
+        if ($type->kind->isDataCollectable() && $data_class) {
             return self::fromDataCollection($data_class, $type->isNullable || $type->isOptional);
         }
 
-        /** @var null|string */
-        $other_type = array_keys($type->acceptedTypes)[0] ?? null;
-
-        if (! $other_type) {
-            throw new RuntimeException("Parameter {$property->name} has no type defined");
-        }
-
-        return self::fromDataReflection(type_name: $other_type, reflection: $reflection, nullable: $type->isNullable);
+        return self::fromDataReflection(type_name: $type->type->name, reflection: $reflection, nullable: $type->isNullable);
     }
 
     public static function fromDataReflection(
@@ -87,11 +107,30 @@ class Schema extends Data
             return self::fromDateTime($nullable);
         }
 
+        if (! $is_class && str_ends_with($type_name, '[]')) {
+            return self::fromArray($type_name, $nullable);
+        }
+
         if (! $is_class && 'array' !== $type_name) {
             return self::fromBuiltin($type_name, $nullable);
         }
 
-        if (null !== $reflection && (is_a($type_name, DataCollection::class, true) || 'array' === $type_name)) {
+        if ($is_class) {
+            $type_class = new ReflectionClass($type_name);
+            $attributes = $type_class->getAttributes(CustomContentType::class);
+            if (count($attributes) > 0) {
+                /** @var CustomContentType $instance */
+                $instance = $attributes[0]->newInstance();
+                if ($instance->isBinary) {
+                    return new self(
+                        type: 'string',
+                        format: 'binary'
+                    );
+                }
+            }
+        }
+
+        if (null !== $reflection && (is_a($type_name, DataCollection::class, true) || is_a($type_name, Collection::class, true) || 'array' === $type_name)) {
             return self::fromListDocblock($reflection, $nullable);
         }
 
@@ -133,12 +172,10 @@ class Schema extends Data
      * @return array<int|string,mixed>
      */
     public function transform(
-        bool $transformValues = true,
-        WrapExecutionType $wrapExecutionType = WrapExecutionType::Disabled,
-        bool $mapPropertyNames = true,
+        null|TransformationContext|TransformationContextFactory $transformationContext = null,
     ): array {
         $array = array_filter(
-            parent::transform($transformValues, $wrapExecutionType),
+            parent::transform($transformationContext),
             fn (mixed $value) => null !== $value,
         );
 
@@ -154,8 +191,18 @@ class Schema extends Data
 
         if (null !== $this->properties) {
             $array['properties'] = collect($this->properties->all())
-                ->mapWithKeys(fn (Property $property) => [$property->getName() => $property->type->transform($transformValues, $wrapExecutionType, $mapPropertyNames)])
+                ->mapWithKeys(fn (Property $property) => [$property->getName() => $property->type->transform($transformationContext)])
                 ->toArray();
+
+            $array['required'] = collect($this->properties->all())
+                ->filter(fn (Property $property) => $property->required)
+                ->map(fn (Property $property) => $property->getName())
+                ->values()
+                ->toArray();
+
+            if (0 == count($array['required'])) {
+                unset($array['required']);
+            }
         }
 
         return $array;
@@ -176,12 +223,13 @@ class Schema extends Data
         $enum = (new ReflectionEnum($type));
 
         $type_name = 'string';
-
+        $values    = null;
         if ($enum->isBacked() && $type = $enum->getBackingType()) {
             $type_name = (string) $type;
+            $values    = collect($enum->getCases())->map(fn (ReflectionEnumBackedCase $case) => $case->getBackingValue())->all();
         }
 
-        return new self(type: $type_name, nullable: $nullable);
+        return new self(type: $type_name, nullable: $nullable, enum: $values);
     }
 
     protected static function fromData(string $type_name, bool $nullable): self
@@ -250,9 +298,16 @@ class Schema extends Data
 
         $class = $tag_type->getValueType()->__toString();
 
-        if (! class_exists($class)) {
-            throw new RuntimeException('Cannot resolve "' . $class . '". Make sure to use the full path in the phpdoc including the first "\".');
-        }
+        return new self(
+            type: 'array',
+            items: self::fromDataReflection($class),
+            nullable: $nullable,
+        );
+    }
+
+    protected static function fromArray(string $type, bool $nullable): self
+    {
+        $class = substr($type, 0, -2);
 
         return new self(
             type: 'array',

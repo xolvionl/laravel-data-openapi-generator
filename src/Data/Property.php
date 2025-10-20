@@ -2,20 +2,20 @@
 
 namespace Xolvio\OpenApiGenerator\Data;
 
+use Illuminate\Support\Collection;
 use ReflectionClass;
 use ReflectionProperty;
 use RuntimeException;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Data as LaravelData;
-use Spatie\LaravelData\DataCollection;
 
 class Property extends Data
 {
     public function __construct(
         protected string $name,
         public Schema $type,
-    ) {
-    }
+        public bool $required = true,
+    ) {}
 
     public function getName(): string
     {
@@ -23,9 +23,9 @@ class Property extends Data
     }
 
     /**
-     * @return DataCollection<int,self>
+     * @return Collection<int,self>
      */
-    public static function fromDataClass(string $class): DataCollection
+    public static function fromDataClass(string $class): Collection
     {
         if (! is_a($class, LaravelData::class, true)) {
             throw new RuntimeException('Class does not extend LaravelData');
@@ -34,15 +34,13 @@ class Property extends Data
         $reflection = new ReflectionClass($class);
         $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
 
-        /** @var DataCollection<int,self> */
-        $collection = self::collection(
+        return self::collect(
             array_map(
                 fn (ReflectionProperty $property) => self::fromProperty($property),
                 $properties
-            )
+            ),
+            Collection::class
         );
-
-        return $collection;
     }
 
     public static function fromProperty(ReflectionProperty $reflection): self
@@ -50,6 +48,7 @@ class Property extends Data
         return new self(
             name: $reflection->getName(),
             type: Schema::fromReflectionProperty($reflection),
+            required: ! $reflection->getType()?->allowsNull() ?? false,
         );
     }
 }
